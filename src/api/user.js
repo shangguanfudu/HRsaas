@@ -1,14 +1,19 @@
 import request from '@/utils/request'
 
-export function login(data) {
+/**
+ * 登录
+ * @param {*} param0
+ * @returns
+ */
+export const login = ({ mobile, password }) => {
   return request({
-    url: '/vue-admin-template/user/login',
-    method: 'post',
-    data
+    method: 'POST',
+    url: '/sys/login',
+    data: { mobile, password }
   })
 }
 
-export function getInfo(token) {
+export function getInfo (token) {
   return request({
     url: '/vue-admin-template/user/info',
     method: 'get',
@@ -16,7 +21,7 @@ export function getInfo(token) {
   })
 }
 
-export function logout() {
+export function logout () {
   return request({
     url: '/vue-admin-template/user/logout',
     method: 'post'
