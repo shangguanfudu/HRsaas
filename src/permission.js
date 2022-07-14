@@ -1,18 +1,41 @@
-// import router from './router'
-// import store from './store'
+import router from './router'
+import store from './store'
 // import { Message } from 'element-ui'
-// import NProgress from 'nprogress' // progress bar
-// import 'nprogress/nprogress.css' // progress bar style
+import NProgress from 'nprogress' // progress bar
+import 'nprogress/nprogress.css' // progress bar style
 // import { getToken } from '@/utils/auth' // get token from cookie
 // import getPageTitle from '@/utils/get-page-title'
 
 // NProgress.configure({ showSpinner: false }) // NProgress Configuration
+const whiteList = ['/login', '/404'] // 白名单
 
-// const whiteList = ['/login'] // no redirect whitelist
+router.beforeEach((to, from, next) => {
+  // 开启进度效果
+  NProgress.start()
+  // 权限控制
+  const token = store.state.user.token
+  if (token) { // 已有token的不用重新登录直接后台
+    if (to.path === '/login') {
+      NProgress.done()
+      next('/')
+    } else {
+      // 获取用户信息
+      store.dispatch('user/getInfo')
+      next()
+    }
+  } else {
+    if (whiteList.includes(to.path)) {
+      next()
+    } else {
+      next('/login')
+    }
+  }
+})
+router.afterEach(() => {
+  NProgress.done()
+})
 
-// router.beforeEach(async(to, from, next) => {
-//   // start progress bar
-//   NProgress.start()
+// router.beforeEach(async(to, from, next) =>
 
 //   // set page title
 //   document.title = getPageTitle(to.meta.title)
@@ -58,7 +81,3 @@
 //   }
 // })
 
-// router.afterEach(() => {
-//   // finish progress bar
-//   NProgress.done()
-// })
