@@ -14,8 +14,8 @@
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          <img src="@/./assets/common/bigUserHeader.png" class="user-avatar" />
-          <span class="name">管理员</span>
+          <img v-imageerror :src="staffPhoto" class="user-avatar" />
+          <span class="name">{{ name }}</span>
           <i class="el-icon-caret-bottom" style="color: #fff" />
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
@@ -25,7 +25,7 @@
           <a target="_blank" href="https://gitee.com/shuiruohanyu/hrsaas139">
             <el-dropdown-item>项目地址</el-dropdown-item>
           </a>
-          <el-dropdown-item divided @click.native="logout">
+          <el-dropdown-item divided @click.native="logoutClick">
             <span style="display: block">退出登录</span>
           </el-dropdown-item>
         </el-dropdown-menu>
@@ -35,29 +35,35 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, createNamespacedHelpers } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
-
+const { mapActions } = createNamespacedHelpers('user') // 这是的mapAction直接对应模块下的action辅助函数
 export default {
   components: {
     // eslint-disable-next-line vue/no-unused-components
     Breadcrumb,
     Hamburger
   },
+  data () {
+    return {
+    }
+  },
   computed: {
     ...mapGetters([
       'sidebar',
-      'avatar'
+      'name',
+      'staffPhoto'
     ])
   },
   methods: {
     toggleSideBar () {
       this.$store.dispatch('app/toggleSideBar')
     },
-    async logout () {
-      await this.$store.dispatch('user/logout')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+    ...mapActions(['logout']),
+    async logoutClick () {
+      await this.logout() // 这里不论写不写 await 登出方法都是同步的
+      this.$router.push(`/login`) // 跳到登录
     }
   }
 }

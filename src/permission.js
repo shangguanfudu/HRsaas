@@ -20,7 +20,9 @@ router.beforeEach((to, from, next) => {
       next('/')
     } else {
       // 获取用户信息
-      store.dispatch('user/getInfo')
+      if (!store.state.user.userInfo.id) { // 这样ajax只会发送一次
+        store.dispatch('user/getInfo')
+      }
       next()
     }
   } else {

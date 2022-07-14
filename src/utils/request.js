@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
 import store from '@/store'
-// import { getToken } from '@/utils/auth'
+import { getTimeStamp } from '@/utils/auth'
+import router from '@/router'
 
 // create an axios instance
 const service = axios.create({
@@ -31,10 +32,13 @@ service.interceptors.response.use(
 service.interceptors.request.use(function (config) {
   // 在发送请求之前做些什么
   const token = store.state.user.token
-  if (token) {
-    config.headers = {
-      Authorization: 'Bearer ' + token
+  if (token) { // 每次发起请求还要判断token是否过期
+    const time = Date.now() - getTimeStamp()
+    if (time > 2 * 60 * 60 * 1000) {
+      store.dispatch('user/logout')
+      router.push('/login')
     }
+    config.headers['Authorization'] = 'Bearer ' + token
   }
   return config
 }, function (error) {
