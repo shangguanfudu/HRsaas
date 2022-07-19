@@ -8,7 +8,7 @@ import router from '@/router'
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000 // request timeout
+  timeout: 10000 // request timeout
 })
 
 // response interceptor
@@ -23,7 +23,14 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log('err' + error) // for debug
+    // 实现token失效的被动处理
+    // console.dir(error)
+    // error 信息 里面 response的对象
+    if (error.response && error.response.data && error.response.data.code === 10002) {
+      // 当等于10002的时候 表示 后端告诉我token超时了
+      store.dispatch('user/logout') // 登出action 删除token
+      router.push('/login')
+    }
 
     return Promise.reject(error)
   }

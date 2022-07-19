@@ -17,8 +17,8 @@ module.exports = {
     "vue/max-attributes-per-line": [2, {
       "singleline": 10,
       "multiline": {
-        "max": 1,
-        "allowFirstLine": false
+        "max": 3,
+        "allowFirstLine": true
       }
     }],
     "vue/singleline-html-element-content-newline": "off",

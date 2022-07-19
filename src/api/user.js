@@ -32,6 +32,16 @@ export function getUserDetailById (id) {
     url: `/sys/user/${id}`
   })
 }
+
+/** *
+ *
+ * 获取简单列表
+ * **/
+export function getUserList () {
+  return request({
+    url: `/sys/user/simple`
+  })
+}
 export function logout () {
   return request({
     url: '/vue-admin-template/user/logout',
