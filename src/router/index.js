@@ -46,12 +46,14 @@ export const constantRoutes = [
     path: '/',
     component: Layout,
     redirect: '/dashboard',
-    children: [{
-      path: 'dashboard',
-      name: 'Dashboard',
-      component: () => import('@/views/dashboard/index'),
-      meta: { title: '首页', icon: 'dashboard' }
-    }]
+    children: [
+      {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: () => import('@/views/dashboard/index'),
+        meta: { title: '首页', icon: 'dashboard' }
+      }
+    ]
   },
 
   // 404 page must be placed at the end !!!
@@ -127,7 +129,7 @@ const asyncRoutes = [
       path: '',
       name: 'Setting',
       component: () => import('@/views/setting/index'),
-      meta: { title: '设置', icon: 'setting' }
+      meta: { title: '公司设置', icon: 'setting' }
     }]
   },
   {
@@ -138,6 +140,29 @@ const asyncRoutes = [
       name: 'Social',
       component: () => import('@/views/social/index'),
       meta: { title: '社保', icon: 'table' }
+    }]
+  },
+  {
+    path: '/import',
+    component: Layout,
+    hidden: true,
+    children: [{
+      path: '',
+      name: 'Import',
+      component: () => import('@/views/import')
+    }]
+  },
+  {
+    path: '/employee/detail/:id',
+    component: Layout,
+    hidden: true,
+    children: [{
+      path: '',
+      name: 'EmployeeDetail',
+      component: () => import('@/views/employees/detail'),
+      meta: {
+        title: '员工详情' // 标记当前路由规则的中文名称 后续在做左侧菜单时 使用
+      }
     }]
   }
 ]

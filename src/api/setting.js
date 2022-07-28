@@ -59,3 +59,9 @@ export function addRole (data) {
     method: 'post'
   })
 }
+// 根据角色id获取权限
+export const getPermissionsById = id => {
+  return request({
+    url: `/sys/role/${id}`
+  })
+}

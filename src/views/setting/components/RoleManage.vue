@@ -17,7 +17,9 @@
       <el-table-column align="center" prop="description" label="描述" />
       <el-table-column align="center" label="操作">
         <template slot-scope="{ row }">
-          <el-button size="small" type="success">分配权限</el-button>
+          <el-button size="small" type="success" @click="rightClick(row.id)"
+            >分配权限</el-button
+          >
           <el-button size="small" type="primary" @click="editClick(row.id)"
             >编辑</el-button
           >
@@ -41,7 +43,7 @@
     <!-- 编辑弹出层 -->
     <el-dialog
       :title="roleForm.id ? '编辑角色' : '添加角色'"
-      :visible="isEditShow"
+      :visible.sync="isEditShow"
       @close="editCancel"
     >
       <el-form
@@ -67,11 +69,35 @@
         </el-col>
       </el-row>
     </el-dialog>
+    <!-- 分配权限弹出层 -->
+    <el-dialog
+      title="分配权限"
+      :visible.sync="isRightShow"
+      width="50%"
+      @close="isRightShow = false"
+    >
+      <el-tree
+        v-if="isRightShow"
+        ref="rightTree"
+        node-key="id"
+        :default-checked-keys="currentRights"
+        :data="rightList"
+        :props="{ label: 'name' }"
+        default-expand-all
+        show-checkbox
+      ></el-tree>
+      <template #footer>
+        <el-button type="primary" @click="rightConfirm">确认</el-button>
+        <el-button @click="isRightShow = false">取消</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getRoleList, deleteRole, getRoleDetail, updateRole, addRole } from '@/api/setting'
+import { getRoleList, deleteRole, getRoleDetail, updateRole, addRole, getPermissionsById } from '@/api/setting'
+import { getPermissions, assignPermission } from '@/api/permission'
+import { tranferListToTree } from '@/utils'
 export default {
   filters: {},
   components: {},
@@ -85,11 +111,15 @@ export default {
         total: 0 // 记录总数
       },
       isEditShow: false,
+      isRightShow: false,
       // 专门接收新增或者编辑的编辑的表单数据
       roleForm: {},
       rules: {
         name: [{ required: true, message: '角色名称不能为空', trigger: 'blur' }]
-      }
+      },
+      rightList: [],
+      currentRights: [],
+      currentId: null
     }
   },
   computed: {},
@@ -114,6 +144,10 @@ export default {
         await this.$confirm('确认删除该角色吗')
         // 只有点击了确定 才能进入到下方
         await deleteRole(id) // 调用删除接口
+        if (this.roleList.length === 1 && this.page.page > 1) {
+          // 如果当前这页是最后一页，删除最后一项后要让page--
+          this.page.page--
+        }
         this.getRoleList() // 重新加载数据
         this.$message.success('删除角色成功')
       } catch (error) {
@@ -148,6 +182,26 @@ export default {
       // 移除校验
       this.$refs.roleForm.resetFields()
       this.isEditShow = false
+    },
+    async rightClick (id) {
+      // 获取所有权限点
+      const res = await getPermissions()
+      // console.log(res)
+      this.rightList = tranferListToTree(res, '0')
+      // 根据角色获取权限
+      const result = await getPermissionsById(id)
+      // console.log(result)
+      this.currentRights = result.permIds
+      this.isRightShow = true
+      this.currentId = id
+    },
+    async rightConfirm () {
+      const rightArr = this.$refs.rightTree.getCheckedKeys()
+      // console.log(rightArr)
+      await assignPermission(this.currentId, rightArr)
+      this.$message.success('分配成功')
+      this.isRightShow = false
+      this.getRoleList()
     }
   }
 }
